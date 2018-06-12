@@ -1,5 +1,8 @@
 package com.vc.controllers;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.vc.dtos.GenerateVerificationCodeResponseDTO;
 import com.vc.dtos.ValidationCodeResponseDTO;
+import com.vc.parsers.Parser;
+import com.vc.parsers.ParserFactory;
 import com.vc.services.VerificationCodeResponseGeneratorService;
 
 @RestController
@@ -24,11 +29,8 @@ public class VerificationController {
 	@Autowired
 	private VerificationCodeResponseGeneratorService verificationCodeResponseGeneratorService;
 
-	// @Autowired
-	// private ResponseToCSV responseToCsv;
-
-	@RequestMapping(value = "/{userId}", method = RequestMethod.POST, produces = { MediaType.APPLICATION_XML_VALUE,
-			MediaType.APPLICATION_JSON_VALUE, "text/csv" })
+	@RequestMapping(value = "/verify/{userId}", method = RequestMethod.POST, produces = {
+			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<GenerateVerificationCodeResponseDTO> generator(@PathVariable("userId") int userId) {
 		LOGGER.info("Generating Verification Code for User : " + userId);
 		GenerateVerificationCodeResponseDTO response = verificationCodeResponseGeneratorService
@@ -36,19 +38,19 @@ public class VerificationController {
 		return new ResponseEntity<GenerateVerificationCodeResponseDTO>(response, HttpStatus.OK);
 	}
 
-	// FOR CSV Format
-	// @RequestMapping(value = "/{userId}", method = RequestMethod.POST, produces =
-	// { "text/csv" })
-	// public void generatorAsCSV(@PathVariable("userId") int userId,
-	// HttpServletResponse httpResponse)
-	// throws IOException {
-	// LOGGER.info("Generating Verification Code for User : " + userId);
-	// GenerateVerificationCodeResponseDTO responseDTO =
-	// verificationCodeResponseGeneratorService
-	// .getGenerateVerificationCode(userId);
-	// responseToCsv.writeVerificationCodeToCsv(httpResponse.getWriter(),
-	// responseDTO);
-	// }
+	@RequestMapping(value = "/{userIdWithFormat:.+}", method = RequestMethod.POST)
+	public ResponseEntity<String> generatorAsCSV(
+			@Valid @NotNull @PathVariable("userIdWithFormat") String userWithFormat) {
+		String[] params = userWithFormat.split("\\.");
+		Integer userId = params.length > 0 ? Integer.parseInt(params[0]) : -1;
+		String format = params.length > 1 ? params[1] : "json";
+		LOGGER.info("*********  Generating Verification Code for User : " + userId + " and in format : " + format);
+		GenerateVerificationCodeResponseDTO responseDTO = verificationCodeResponseGeneratorService
+				.getGenerateVerificationCode(userId);
+		ParserFactory<GenerateVerificationCodeResponseDTO> parserFactory = new ParserFactory<GenerateVerificationCodeResponseDTO>();
+		Parser<GenerateVerificationCodeResponseDTO> parser = parserFactory.getParser(format);
+		return new ResponseEntity<String>(parser.parse(responseDTO), HttpStatus.OK);
+	}
 
 	@RequestMapping(value = "/{userId}/{code}", method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE, "text/csv" })
