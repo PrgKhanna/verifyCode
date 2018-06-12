@@ -12,26 +12,20 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import net.sf.jsefa.csv.annotation.CsvDataType;
-import net.sf.jsefa.csv.annotation.CsvField;
-
 @XmlRootElement(name = "response")
 @XmlAccessorType(XmlAccessType.NONE)
 @JsonTypeName(value = "response")
 @JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo.Id.NAME)
 @JsonPropertyOrder({ "result_code", "message" })
-@CsvDataType()
 public class GenerateVerificationCodeResponseDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@XmlElement(name = "result_code")
 	@JsonProperty(value = "result_code")
-	@CsvField(pos = 1)
 	private int resultCode;
 
 	@XmlElement
-	@CsvField(pos = 2)
 	private String message;
 
 	public int getResultCode() {
