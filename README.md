@@ -1,4 +1,4 @@
-# pkhannaSWF
+# pkhanna verifyCode
 
 Spring, Hibernate , Mysql , Maven , Junit.
 
