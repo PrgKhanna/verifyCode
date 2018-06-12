@@ -1,10 +1,9 @@
 # pkhannaSWF
 
-Spring, Hibernate , Mysql , Maven , Redis.
+Spring, Hibernate , Mysql , Maven , Junit.
 
-API : /swf/schedule - gets the current schedule.
-
-returns the schedule i.e per day and Engineers allocated to shifts.
+API : /vc/verification_code/{user_id}.{format} - generate code for user
+      /vc/verification_code/{user_id}/{code}.{format} - verify code for user
 
 
 
